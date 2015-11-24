@@ -19,6 +19,19 @@ class PointCloud(object):
     def apply(self,fun):
     	self.points=[fun(point) for point in self.points]
 
+    def to_img(self,dim):
+    	img_dim=(dim[0]+1,dim[1]+1)
+    	img=np.zeros(img_dim)
+    	print(img.shape)
+    	for point in self.points:
+    		x,y,z=point
+    		x=int(x)
+    		y=int(y)
+    		print(x)
+    		print(y)
+    		img[x][y]=z
+    	return img
+
 def create_point_cloud(array):
 	width=array.shape[0]
 	height=array.shape[1]
@@ -37,4 +50,4 @@ def create_point_cloud(array):
 def show_points(point):
 	print(point)
 	return point
-	
+

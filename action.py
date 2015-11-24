@@ -33,6 +33,12 @@ class Action(object):
         glob_min=np.amin(min_points,axis=0)
         return glob_min
 
+    def save_imgs(self,out_path):
+    	utils.make_dir(out_path)
+    	imgs=[cloud.to_img(self.dim) for cloud in self.point_clouds]
+        imgs=[("act"+str(i),img) for i,img in enumerate(imgs)]
+        utils.save_images(out_path,imgs)
+
 def make_action(raw_action_path):
 	raw_action=utils.read_object(raw_action_path)
 	p_clouds=[create_point_cloud(img) for img in raw_action.frames]
@@ -43,4 +49,4 @@ if __name__ == "__main__":
 	action=make_action(action_path)
 	action.standarize()
 	print(action.dim)
-	#raw_action.save_imgs("../show/")
+	action.save_imgs("../show/")
