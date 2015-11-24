@@ -16,6 +16,9 @@ class PointCloud(object):
     def get_dim(self,i):
         return [point[i] for point in self.points]
 
+    def apply(self,fun):
+    	self.points=[fun(point) for point in self.points]
+
 def create_point_cloud(array):
 	width=array.shape[0]
 	height=array.shape[1]
@@ -27,10 +30,11 @@ def create_point_cloud(array):
 				new_point=np.array((x_i,y_j,z))
 				points.append(new_point)
 	point_cloud=PointCloud(points)
-	print(point_cloud.find_min())
-	print(point_cloud.find_max())
+	#print(point_cloud.find_min())
+	#print(point_cloud.find_max())
 	return point_cloud
 
-
-
- 		 
+def show_points(point):
+	print(point)
+	return point
+	
