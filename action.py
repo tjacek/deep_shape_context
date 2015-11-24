@@ -49,4 +49,4 @@ if __name__ == "__main__":
 	action=make_action(action_path)
 	action.standarize()
 	print(action.dim)
-	action.save_imgs("../show/")
+	action.save_imgs("../show0/")

@@ -19,17 +19,13 @@ class PointCloud(object):
     def apply(self,fun):
     	self.points=[fun(point) for point in self.points]
 
-    def to_img(self,dim):
-    	img_dim=(dim[0]+1,dim[1]+1)
-    	img=np.zeros(img_dim)
+    def to_img(self,dim,proj=None):
+    	if(proj==None):
+    		proj=ProjectionYZ()
+    	img=proj.get_img(dim)
     	print(img.shape)
     	for point in self.points:
-    		x,y,z=point
-    		x=int(x)
-    		y=int(y)
-    		print(x)
-    		print(y)
-    		img[x][y]=z
+    		proj.apply(point,img,True)
     	return img
 
 def create_point_cloud(array):
@@ -43,11 +39,53 @@ def create_point_cloud(array):
 				new_point=np.array((x_i,y_j,z))
 				points.append(new_point)
 	point_cloud=PointCloud(points)
-	#print(point_cloud.find_min())
-	#print(point_cloud.find_max())
 	return point_cloud
 
 def show_points(point):
 	print(point)
 	return point
 
+class ProjectionXY(object):
+    def get_img(self,dim):
+        img_dim=(dim[0]+1,dim[1]+1)
+        return np.zeros(img_dim)
+
+    def apply(self,point,img,binary=True):
+        x,y,z=point
+        x=int(x)
+        y=int(y)
+        if(binary):
+            img[x][y]=100
+        else:
+            img[x][y]=z
+
+class ProjectionXZ(object):
+    def get_img(self,dim):
+        img_dim=(dim[0]+1,dim[2]+3)
+        return np.zeros(img_dim)
+
+    def apply(self,point,img,binary=True):
+        x,y,z=point
+        x=int(x)
+        z=int(z)
+        if(binary):
+            img[x][z]=100
+        else:
+            img[x][z-2]=y
+            img[x][z-1]=y
+            img[x][z]=y
+            img[x][z+1]=y
+
+class ProjectionYZ(object):
+    def get_img(self,dim):
+        img_dim=(dim[2]+2,dim[1]+1)
+        return np.zeros(img_dim)
+
+    def apply(self,point,img,binary=True):
+        x,y,z=point
+        z=int(z)
+        y=int(y)
+        if(binary):
+            img[z][y]=100
+        else:
+            img[z][y]=x
