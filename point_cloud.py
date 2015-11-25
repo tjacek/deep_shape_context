@@ -21,7 +21,7 @@ class PointCloud(object):
 
     def to_img(self,dim,proj=None):
     	if(proj==None):
-    		proj=ProjectionYZ()
+    		proj=ProjectionXZ()
     	img=proj.get_img(dim)
     	print(img.shape)
     	for point in self.points:
