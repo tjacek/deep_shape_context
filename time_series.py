@@ -1,6 +1,7 @@
 import utils
 import point_cloud as pc
 import scipy.misc as image
+from sklearn.decomposition import PCA
 
 class FinalAction(object):
     def __init__(self,frames):
@@ -9,6 +10,9 @@ class FinalAction(object):
 class Frame(object):
     def __init__(self, p_clouds):
         self.p_clouds=p_clouds
+
+    def to_pca(self):
+        return [get_pca(p_cloud) for p_cloud in self.p_clouds]
 
 def read_action(path):
     names=utils.get_files(path+"xy/")
@@ -27,6 +31,13 @@ def read_projection(file_path):
     img=image.imread(file_path) 
     return pc.create_point_cloud(img,True)
 
+def get_pca(p_cloud):
+    x=p_cloud.to_array()
+    pca = PCA()
+    pca.fit(x)
+    return pca.components_ 
+
 if __name__ == "__main__":
     action_path="../show2/"
-    read_action(action_path)
+    action=read_action(action_path)
+    print(action.frames[0].to_pca())

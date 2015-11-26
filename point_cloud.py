@@ -32,6 +32,9 @@ class PointCloud2D(object):
     def __init__(self,points):
         self.points=points
 
+    def to_array(self):
+        return np.array(self.points)
+
 def create_point_cloud(array,pc2D=False):
     width=array.shape[0]
     height=array.shape[1]
