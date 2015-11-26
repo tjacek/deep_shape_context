@@ -2,7 +2,7 @@ import numpy as np
 
 class PointCloud(object):
     def __init__(self, points):
- 	    self.points = points
+ 	self.points = points
 
     def find_max(self):
     	return self.find_extremum(max)
@@ -28,18 +28,32 @@ class PointCloud(object):
     		proj.apply(point,img,True)
     	return img
 
-def create_point_cloud(array):
-	width=array.shape[0]
-	height=array.shape[1]
-	points=[]
-	for x_i in range(width):
-		for y_j in range(height):
-			z=array[x_i][y_j]
-			if(z!=0):
-				new_point=np.array((x_i,y_j,z))
-				points.append(new_point)
-	point_cloud=PointCloud(points)
-	return point_cloud
+class PointCloud2D(object):
+    def __init__(self,points):
+        self.points=points
+
+def create_point_cloud(array,pc2D=False):
+    width=array.shape[0]
+    height=array.shape[1]
+    points=[]
+    if(pc2D):
+        get_point=get_point2D
+    else:
+        get_point=get_point3D
+    for x_i in range(width):
+        for y_j in range(height):
+            z=array[x_i][y_j]
+            if(z!=0):
+		        points.append(get_point(x_i,y_j,z))
+    if(pc2D):
+        return PointCloud2D(points)
+    return PointCloud(points)
+
+def get_point2D(x,y,z):
+    return np.array((x,y))
+
+def get_point3D(x,y,z):
+    return np.array((x,y,z))
 
 def show_points(point):
 	print(point)

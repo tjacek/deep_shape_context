@@ -48,6 +48,9 @@ def make_dir(path):
     if(not os.path.isdir(path)):
 	os.system("mkdir "+path)
 
+def get_name(path):
+    return path.split("/")[-1]
+
 def array_to_txt(array):
     return reduce(lambda x,y:x+str(y),array,"")
 
