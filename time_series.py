@@ -22,7 +22,7 @@ class Frame(object):
         eigen=np.array(raw_pca).flatten()
         return eigen
 
-def read_action(path):
+def read_im_action(path):
     names=utils.get_files(path+"xy/")
     names=[utils.get_name(frame_path) for frame_path in names]
     frames=[read_frame(path,name) for name in names]
@@ -43,7 +43,12 @@ def get_pca(p_cloud):
     x=p_cloud.to_array()
     pca = PCA()
     pca.fit(x)
-    return pca.explained_variance_ratio_ #pca.components_ 
+    comp=np.array(pca.components_).flatten()
+    #print(type(comp))
+    var=pca.explained_variance_ratio_.flatten()
+    #print(type(var))
+    features=np.concatenate((var,comp),axis=1)
+    return  features#pca.components_ 
 
 def to_time_serie(array):
     length=array.shape[0]
@@ -66,7 +71,7 @@ def to_img(time_series):
  
 if __name__ == "__main__":
     action_path="../show2/"
-    action=read_action(action_path)
+    action=read_im_action(action_path)
     pca=action.to_pca()
     td=to_time_serie(pca)
     img=to_img(td)
