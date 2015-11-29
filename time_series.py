@@ -1,4 +1,5 @@
 import utils
+import cv2
 import point_cloud as pc
 import pandas as pd
 import scipy.misc as image
@@ -12,15 +13,30 @@ class FinalAction(object):
     def to_pca(self):
         eigen=[frame.to_pca() for frame in self.frames]
         return np.array(eigen)
+    
+    def sd(self):
+        action_sd=[frame.sd() for frame in self.frames]
+        return np.array(action_sd)
 
 class Frame(object):
     def __init__(self, p_clouds):
         self.p_clouds=p_clouds
 
+    def clouds_to_array(self):
+        return [cloud.to_array() for cloud in self.p_clouds]
+
     def to_pca(self):
         raw_pca=[get_pca(p_cloud) for p_cloud in self.p_clouds]
         eigen=np.array(raw_pca).flatten()
         return eigen
+    
+    def sd(self):
+        arrays=self.clouds_to_array()
+        frame_std=[]
+        for arr in arrays:
+            st_i=list(np.std(arr,axis=0))
+            frame_std+=st_i
+        return frame_std
 
 def read_im_action(path):
     names=utils.get_files(path+"xy/")
@@ -43,12 +59,12 @@ def get_pca(p_cloud):
     x=p_cloud.to_array()
     pca = PCA()
     pca.fit(x)
-    comp=np.array(pca.components_).flatten()
+    #comp=np.array(pca.components_).flatten()
     #print(type(comp))
     var=pca.explained_variance_ratio_.flatten()
     #print(type(var))
-    features=np.concatenate((var,comp),axis=1)
-    return  features#pca.components_ 
+    #features=np.concatenate((var,comp),axis=1)
+    return var #features#pca.components_ 
 
 def to_time_serie(array):
     length=array.shape[0]
@@ -70,9 +86,9 @@ def to_img(time_series):
     return action_img
  
 if __name__ == "__main__":
-    action_path="../show2/"
+    action_path="../show4/"
     action=read_im_action(action_path)
-    pca=action.to_pca()
+    pca=action.sd()
     td=to_time_serie(pca)
     img=to_img(td)
     utils.save_img("../action",img)
