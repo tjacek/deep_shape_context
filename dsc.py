@@ -57,6 +57,12 @@ def smooth_imgs(in_path,out_path):
     print(out_path)
     action.save(out_path)
 
+def edge_imgs(in_path,out_path):
+    action=pr.read_img_action(in_path+"/")
+    action.detect_edges()
+    print(out_path)
+    action.save(out_path)
+
 def diff_imgs(in_path,out_path):
     action=pr.read_img_action(in_path+"/")
     diff_action=action.diff()
@@ -71,6 +77,7 @@ if __name__ == "__main__":
     final_path="../hands/final_actions/"
     pca_path="../hands/pca/"
     smooth_path="../hands/smooth_actions/"
+    edge_path="../hands/edge_actions/"
     diff_path="../hands/diff_actions/"
     print("ok")
     #transform_files(img_path,pca_path,img_to_pca,True)
@@ -78,6 +85,7 @@ if __name__ == "__main__":
     #transform_files(raw_path,cloud_path,raw_to_pcloud)
     #transform_files(cloud_path,img_path,pcloud_to_img)
     #transform_files(diff_path,final_path,img_to_final,True)
-    transform_files(final_path,pca_path,final_to_pca)
+    #transform_files(final_path,pca_path,final_to_pca)
     #transform_files(img_path,smooth_path,smooth_imgs,True)
+    transform_files(smooth_path,edge_path,edge_imgs,True)
     #transform_files(smooth_path,diff_path,diff_imgs,True)

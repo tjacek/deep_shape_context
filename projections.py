@@ -20,6 +20,10 @@ class ProjectionAction(object):
         for i,frame in enumerate(self.frames):
             frame.save(path,'frame_'+str(i))
 
+    def detect_edges(self):
+        for frame in self.frames:
+            frame.detect_edges()
+            
     def diff(self):
         size=len(self.frames)-2
         new_fr=[self.frames[i] - self.frames[i+2] for i in range(size)]
@@ -42,6 +46,10 @@ class ProjectionFrame(object):
             full_path=proj_path+name
             print(full_path)
             utils.save_img(full_path,proj)
+
+    def detect_edges(self):
+        proj=[cv2.Canny(img,50,150) for img in self.projections]
+        self.projections=proj
 
     def __sub__(self,other):
         frame_input=zip(self.projections,other.projections)
