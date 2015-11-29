@@ -21,6 +21,15 @@ class PointCloud(object):
     def apply(self,fun):
     	self.points=[fun(point) for point in self.points]
 
+    def rescale(self,dim):
+        new_points=[]
+        for point in self.points:
+            new_point=[]
+            for i,dim_i in enumerate(dim):
+                new_point.append(point[i]/float(dim_i))
+            new_points.append(new_point)
+        self.points=new_points
+
     def to_array(self):
         return np.array(self.points)
 

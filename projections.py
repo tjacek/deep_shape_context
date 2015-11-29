@@ -18,12 +18,12 @@ class ProjectionAction(object):
     	for proj_type in DIRS:
     	    utils.make_dir(path+'/'+proj_type)
         for i,frame in enumerate(self.frames):
-            frame.save(path,'frame_'+str(i))
+            frame.save(path,'act'+str(i))
 
     def detect_edges(self):
         for frame in self.frames:
             frame.detect_edges()
-            
+
     def diff(self):
         size=len(self.frames)-2
         new_fr=[self.frames[i] - self.frames[i+2] for i in range(size)]
@@ -36,7 +36,7 @@ class ProjectionFrame(object):
     def smooth(self):
     	kern=np.ones((5,5),np.float32)/25.0
         proj=[cv2.filter2D(img,-1,kern) for img in self.projections]
-        proj2=[cv2.threshold(img,2,255,cv2.THRESH_BINARY)[1] for img in proj]
+        proj2=[cv2.threshold(img,0,255,cv2.THRESH_BINARY)[1] for img in proj]
         self.projections=proj2
 
     def save(self,path,name):
@@ -58,8 +58,11 @@ class ProjectionFrame(object):
         return ProjectionFrame(new_proj)
 
 def read_img_action(path):
-    names=utils.get_files(path+"xy/")
+    raw_names=utils.get_files(path+"xy/")
+    names_size=len(raw_names)
+    names=["act"+str(i)+".png" for i in range(names_size)]
     names=[utils.get_name(frame_path) for frame_path in names]
+    print(names)
     new_proj=[read_projection_frame(path,name) for name in names]
     return ProjectionAction(new_proj)
 
