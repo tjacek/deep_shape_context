@@ -20,6 +20,11 @@ class ProjectionAction(object):
         for i,frame in enumerate(self.frames):
             frame.save(path,'frame_'+str(i))
 
+    def diff(self):
+        size=len(self.frames)-2
+        new_fr=[self.frames[i] - self.frames[i+2] for i in range(size)]
+        return ProjectionAction(new_fr)
+
 class ProjectionFrame(object):
     def __init__(self,projections):
         self.projections=projections   
@@ -38,11 +43,17 @@ class ProjectionFrame(object):
             print(full_path)
             utils.save_img(full_path,proj)
 
+    def __sub__(self,other):
+        frame_input=zip(self.projections,other.projections)
+        new_proj=[proj_a-proj_b for proj_a,proj_b in frame_input]
+        new_proj=[np.absolute(proj) for proj in new_proj]
+        return ProjectionFrame(new_proj)
+
 def read_img_action(path):
     names=utils.get_files(path+"xy/")
     names=[utils.get_name(frame_path) for frame_path in names]
-    frames=[read_projection_frame(path,name) for name in names]
-    return ProjectionAction(frames)
+    new_proj=[read_projection_frame(path,name) for name in names]
+    return ProjectionAction(new_proj)
 
 def read_projection_frame(frame_path,name):
     frame_paths=[ frame_path+prefix+name  for prefix in DIRS]
@@ -50,7 +61,8 @@ def read_projection_frame(frame_path,name):
     return ProjectionFrame(projs)
 
 if __name__ == "__main__":
-    action_path="../show2/"
+    action_path="../show3/"
     action=read_img_action(action_path)
-    action.smooth()
-    action.save("../show3/")
+    #action.smooth()
+    diff_action=action.diff()
+    diff_action.save("../show4/")
