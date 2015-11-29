@@ -6,6 +6,7 @@ import scipy.misc as image
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+from scipy.stats import skew as skewness
 
 class FinalAction(object):
     def __init__(self,frames):
@@ -19,6 +20,10 @@ class FinalAction(object):
         action_sd=[frame.sd() for frame in self.frames]
         return np.array(action_sd)
 
+    def skew(self):
+        action_skew=[frame.skew() for frame in self.frames]
+        return np.array(action_skew)
+
 class Frame(object):
     def __init__(self, p_clouds):
         self.p_clouds=p_clouds
@@ -31,6 +36,14 @@ class Frame(object):
         eigen=np.array(raw_pca).flatten()
         return eigen
     
+    def skew(self):
+        arrays=self.clouds_to_array()
+        frame_skew=[]
+        for arr in arrays:
+            st_i=list(skewness(arr,axis=0))
+            frame_skew+=st_i
+        return frame_skew
+
     def sd(self):
         arrays=self.clouds_to_array()
         frame_std=[]
@@ -50,11 +63,17 @@ def read_frame(path,name):
     zx_pro=read_projection(path+"zx/"+name)
     zy_pro=read_projection(path+"zy/"+name)
     print(len(xy_pro.points))
+    print(xy_pro.find_max())
     return Frame([xy_pro,zx_pro,zy_pro])
 
 def read_projection(file_path):
-    img=image.imread(file_path) 
-    return pc.create_point_cloud(img,True)
+    img=image.imread(file_path)
+    p_cloud=pc.create_point_cloud(img,True)
+    dim=img.shape
+    #print(p_cloud.points[0])
+    p_cloud.rescale(dim)
+    #print(p_cloud.points[0])
+    return p_cloud
 
 def get_pca(p_cloud):
     x=p_cloud.to_array()
@@ -72,7 +91,10 @@ def to_time_serie(array):
     dim=array.shape[1]
     columns=['c'+str(i) for i in range(dim)]
     index=range(length)
-    return pd.DataFrame(array,index=index,columns=columns)
+    x=[smooth(array[:,i]) for i in range(dim)]
+    x=np.array(x)
+    x=x.T
+    return pd.DataFrame(x,index=index,columns=columns)
 
 def visualize(path,df,show=False):
     plt.figure()
@@ -81,6 +103,17 @@ def visualize(path,df,show=False):
         plt.show()
     plt.savefig(path,format='png')   
     plt.close()
+
+def smooth(x):
+    ewma = pd.stats.moments.ewma
+
+    fwd = ewma( x, span=10 ) # take EWMA in fwd direction
+    bwd = ewma( x[::-1], span=15 ) # take EWMA in bwd direction
+    c = np.vstack(( fwd, bwd[::-1] )) # lump fwd and bwd together
+    c = np.mean( c, axis=0 ) # average
+    print(c[0]-x[0])
+    print(x.shape)
+    return c
 
 def to_img(time_series):
     multipler=10
@@ -97,8 +130,8 @@ def to_img(time_series):
 if __name__ == "__main__":
     action_path="../show4/"
     action=read_im_action(action_path)
-    pca=action.sd()
+    pca=action.skew()
     td=to_time_serie(pca)
     #img=to_img(td)
-    visualize("../action",td)
+    visualize("../skew",td)
     #utils.save_img("../action",img)
