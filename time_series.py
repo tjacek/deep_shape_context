@@ -4,6 +4,7 @@ import point_cloud as pc
 import pandas as pd
 import scipy.misc as image
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 class FinalAction(object):
@@ -73,6 +74,14 @@ def to_time_serie(array):
     index=range(length)
     return pd.DataFrame(array,index=index,columns=columns)
 
+def visualize(path,df,show=False):
+    plt.figure()
+    df.plot()
+    if(show):
+        plt.show()
+    plt.savefig(path,format='png')   
+    plt.close()
+
 def to_img(time_series):
     multipler=10
     cols=time_series.columns
@@ -90,5 +99,6 @@ if __name__ == "__main__":
     action=read_im_action(action_path)
     pca=action.sd()
     td=to_time_serie(pca)
-    img=to_img(td)
-    utils.save_img("../action",img)
+    #img=to_img(td)
+    visualize("../action",td)
+    #utils.save_img("../action",img)
