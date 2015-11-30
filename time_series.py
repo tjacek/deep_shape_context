@@ -63,12 +63,18 @@ class Frame(object):
             st_i=list(np.mean(arr,axis=0))
             frame_std+=st_i
         return frame_std
+    
+    def extreme(self):
+        zx=self.p_clouds[1]
+        eks=zx.find_extreme_point(1,False)
+        zy=self.p_clouds[2]
+        eks2=zy.find_extreme_point(0,False)
+        return eks[0],eks[1],eks2[0],eks2[1]
 
     def get_features(self):
-        #frame_sd=self.sd()
-        #frame_skew=self.skew()
-        fm=self.mean()
-        features=[fm[2],fm[3],fm[4],fm[5]]#,frame_sd[4]]
+        #f_sd=self.sd()
+        a,b,c,d=self.extreme()
+        features=[a,b,c,d]#,frame_sd[4]]
         return np.array(features)
 
 def read_im_action(path):
@@ -114,8 +120,7 @@ def to_time_serie(array):
     x=np.array(x)
     x=x.T
     df= pd.DataFrame(x,index=index,columns=columns)
-    #a=df.to_img()
-    df=diff_data_frame(df,index,columns)
+    #df=diff_data_frame(df,index,columns)
     return df
 
 def visualize(path,df,show=False):
