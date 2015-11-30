@@ -24,6 +24,10 @@ class FinalAction(object):
         action_skew=[frame.skew() for frame in self.frames]
         return np.array(action_skew)
 
+    def features(self):
+        action_feat=[frame.get_features() for frame in self.frames]
+        return np.array(action_feat)
+
 class Frame(object):
     def __init__(self, p_clouds):
         self.p_clouds=p_clouds
@@ -51,6 +55,21 @@ class Frame(object):
             st_i=list(np.std(arr,axis=0))
             frame_std+=st_i
         return frame_std
+
+    def mean(self):
+        arrays=self.clouds_to_array()
+        frame_std=[]
+        for arr in arrays:
+            st_i=list(np.mean(arr,axis=0))
+            frame_std+=st_i
+        return frame_std
+
+    def get_features(self):
+        #frame_sd=self.sd()
+        #frame_skew=self.skew()
+        fm=self.mean()
+        features=[fm[2],fm[3],fm[4],fm[5]]#,frame_sd[4]]
+        return np.array(features)
 
 def read_im_action(path):
     names=utils.get_files(path+"xy/")
@@ -94,7 +113,10 @@ def to_time_serie(array):
     x=[smooth(array[:,i]) for i in range(dim)]
     x=np.array(x)
     x=x.T
-    return pd.DataFrame(x,index=index,columns=columns)
+    df= pd.DataFrame(x,index=index,columns=columns)
+    #a=df.to_img()
+    df=diff_data_frame(df,index,columns)
+    return df
 
 def visualize(path,df,show=False):
     plt.figure()
@@ -104,13 +126,18 @@ def visualize(path,df,show=False):
     plt.savefig(path,format='png')   
     plt.close()
 
+def diff_data_frame(df,index,columns):
+    diff=[df[ts].diff() for ts in df]
+    diff=np.array(diff)
+    diff=diff.T
+    return pd.DataFrame(diff,index=index,columns=columns)
+
 def smooth(x):
     ewma = pd.stats.moments.ewma
-
-    fwd = ewma( x, span=10 ) # take EWMA in fwd direction
-    bwd = ewma( x[::-1], span=15 ) # take EWMA in bwd direction
-    c = np.vstack(( fwd, bwd[::-1] )) # lump fwd and bwd together
-    c = np.mean( c, axis=0 ) # average
+    fwd = ewma( x, span=10 ) 
+    bwd = ewma( x[::-1], span=10 ) 
+    c = np.vstack(( fwd, bwd[::-1] ))
+    c = np.mean( c, axis=0 ) 
     print(c[0]-x[0])
     print(x.shape)
     return c
